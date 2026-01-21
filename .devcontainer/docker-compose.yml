@@ -1,13 +1,12 @@
-version: '3.8'
-
 services:
   app:
-    image: myapp:latest
-    ports:
-      - "8080:80"
-    environment:
-      - APP_ENV=production
+    build:
+      context: ./node
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 20
     volumes:
-      - ./app_data:/var/www/html
-    depends_on:
-      - db
+      - ..:/workspace:cached
+    ports:
+      - "3000:3000"
+    command: sleep infinity
