@@ -1,0 +1,42 @@
+# .github/workflows/setup.yml
+name: Setup from template
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  setup:
+    if: github.event.repository.is_template == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Replace placeholders
+        run: |
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+          REPO_URL="https://github.com/$OWNER/$REPO_NAME"
+
+          # package.json
+          sed -i "s/\"name\": \".*\"/\"name\": \"$REPO_NAME\"/" package.json
+
+          # docusaurus.config.ts
+          sed -i "s|organizationName: '.*'|organizationName: '$OWNER'|" docusaurus.config.ts
+          sed -i "s|projectName: '.*'|projectName: '$REPO_NAME'|" docusaurus.config.ts
+          sed -i "s|url: '.*'|url: 'https://$OWNER.github.io'|" docusaurus.config.ts
+          sed -i "s|baseUrl: '.*'|baseUrl: '/$REPO_NAME/'|" docusaurus.config.ts
+
+          # editUrl (docs & blog)
+          sed -i "s|https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/|$REPO_URL/tree/main/|g" docusaurus.config.ts
+
+          # navbar & footer GitHub links
+          sed -i "s|https://github.com/facebook/docusaurus|$REPO_URL|g" docusaurus.config.ts
+
+      - name: Remove this workflow
+        run: rm .github/workflows/setup.yml
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: initialize project from template"

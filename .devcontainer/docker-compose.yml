@@ -3,10 +3,8 @@ services:
     build:
       context: ./node
       dockerfile: Dockerfile
-      args:
-        NODE_VERSION: 20
     volumes:
       - ..:/workspace:cached
     ports:
-      - "3000:3000"
+      - ":3000:3000"
     command: sleep infinity
