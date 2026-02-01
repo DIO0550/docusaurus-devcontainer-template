@@ -15,6 +15,9 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+env:
+  SITE_DIR: ${{ github.event.repository.name }}
+
 jobs:
   build:
     # テンプレートリポジトリ自体はスキップ
@@ -22,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: my-site
+        working-directory: ${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
 
@@ -34,14 +37,14 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: my-site/pnpm-lock.yaml
+          cache-dependency-path: ${{ github.event.repository.name }}/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: my-site/build
+          path: ${{ github.event.repository.name }}/build
 
   deploy:
     needs: build
