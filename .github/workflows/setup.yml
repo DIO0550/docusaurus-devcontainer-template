@@ -46,6 +46,10 @@ jobs:
       - name: Remove this workflow
         run: rm .github/workflows/setup.yml
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: initialize project from template"
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: initialize project from template"
+          git push
