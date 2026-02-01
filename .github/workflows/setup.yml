@@ -28,11 +28,9 @@ jobs:
           # package.json
           sed -i "s/\"name\": \"my-site\"/\"name\": \"$REPO_NAME\"/" "$REPO_NAME/package.json"
 
-          # docusaurus.config.ts
-          sed -i "s|organizationName: 'facebook'|organizationName: '$OWNER'|" "$REPO_NAME/docusaurus.config.ts"
-          sed -i "s|projectName: 'docusaurus'|projectName: '$REPO_NAME'|" "$REPO_NAME/docusaurus.config.ts"
-          sed -i "s|url: 'https://your-docusaurus-site.example.com'|url: 'https://$OWNER.github.io'|" "$REPO_NAME/docusaurus.config.ts"
-          sed -i "s|baseUrl: '/'|baseUrl: '/$REPO_NAME/'|" "$REPO_NAME/docusaurus.config.ts"
+          # docusaurus.config.ts - replace placeholders
+          sed -i "s|__OWNER__|$OWNER|g" "$REPO_NAME/docusaurus.config.ts"
+          sed -i "s|__REPO_NAME__|$REPO_NAME|g" "$REPO_NAME/docusaurus.config.ts"
 
           # editUrl (docs & blog)
           sed -i "s|https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/|$REPO_URL/tree/main/$REPO_NAME/|g" "$REPO_NAME/docusaurus.config.ts"
