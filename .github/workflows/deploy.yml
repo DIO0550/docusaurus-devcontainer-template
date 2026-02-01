@@ -4,6 +4,9 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ["Setup from template"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -20,8 +23,10 @@ env:
 
 jobs:
   build:
-    # テンプレートリポジトリ自体はスキップ
-    if: github.event.repository.is_template == false
+    # テンプレートリポジトリ自体はスキップ、setup完了後 or my-siteがリネーム済みの場合のみ実行
+    if: |
+      github.event.repository.is_template == false &&
+      (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     defaults:
       run:
