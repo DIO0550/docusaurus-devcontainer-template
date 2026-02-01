@@ -54,6 +54,9 @@ jobs:
       - run: pnpm build
         working-directory: ${{ steps.detect.outputs.dir }}
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ steps.detect.outputs.dir }}/build
