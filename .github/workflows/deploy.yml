@@ -18,9 +18,6 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
-env:
-  SITE_DIR: ${{ github.event.repository.name }}
-
 jobs:
   build:
     # テンプレートリポジトリ自体はスキップ、setup完了後 or my-siteがリネーム済みの場合のみ実行
@@ -28,13 +25,19 @@ jobs:
       github.event.repository.is_template == false &&
       (github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ github.event.repository.name }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Detect site directory
+        id: detect
+        run: |
+          if [ -d "${{ github.event.repository.name }}" ]; then
+            echo "dir=${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=my-site" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: pnpm/action-setup@v4
         with:
@@ -44,14 +47,16 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-          cache-dependency-path: ${{ github.event.repository.name }}/pnpm-lock.yaml
+          cache-dependency-path: ${{ steps.detect.outputs.dir }}/pnpm-lock.yaml
 
       - run: pnpm install --frozen-lockfile
+        working-directory: ${{ steps.detect.outputs.dir }}
       - run: pnpm build
+        working-directory: ${{ steps.detect.outputs.dir }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ${{ github.event.repository.name }}/build
+          path: ${{ steps.detect.outputs.dir }}/build
 
   deploy:
     needs: build
