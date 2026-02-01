@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   setup:
@@ -49,7 +48,6 @@ jobs:
 
       - name: Commit changes
         run: |
-          git checkout -b chore/init-from-template
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
@@ -58,14 +56,4 @@ jobs:
             exit 0
           fi
           git commit -m "chore: initialize project from template"
-          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" HEAD:chore/init-from-template
-      - name: Create pull request
-        run: |
-          OWNER="${{ github.repository_owner }}"
-          REPO="${{ github.event.repository.name }}"
-          API_URL="https://api.github.com/repos/$OWNER/$REPO/pulls"
-          curl -sS -X POST \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            -d '{"title":"chore: initialize project from template","body":"Automated initialization from template.","head":"chore/init-from-template","base":"main"}' \
-            "$API_URL"
+          git push
